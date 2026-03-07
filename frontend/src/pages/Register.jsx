@@ -28,7 +28,7 @@ export default function Register() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1>Регистрация</h1>
+        <h1>Регистрация студента</h1>
         <form onSubmit={handleSubmit}>
           {error && <div className="auth-error">{error}</div>}
           <label>
@@ -63,7 +63,7 @@ export default function Register() {
             />
           </label>
           <button type="submit" disabled={submitting}>
-            {submitting ? 'Регистрация…' : 'Зарегистрироваться'}
+            {submitting ? 'Регистрация…' : 'Зарегистрироваться как студент'}
           </button>
         </form>
         <p className="auth-switch">

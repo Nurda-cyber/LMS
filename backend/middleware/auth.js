@@ -9,7 +9,7 @@ const auth = (req, res, next) => {
   const token = authHeader.slice(7);
   try {
     const payload = jwt.verify(token, JWT_SECRET);
-    req.user = payload;
+    req.user = { id: payload.id, email: payload.email, role: payload.role };
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Недействительный или истёкший токен' });

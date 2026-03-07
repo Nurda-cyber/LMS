@@ -12,7 +12,7 @@ export default function Home() {
         {user ? (
           <div className="home-actions">
             <Link to="/dashboard" className="btn btn-primary">
-              Личный кабинет
+              {user.role === 'admin' ? 'Панель администратора' : user.role === 'teacher' ? 'Панель учителя' : 'Личный кабинет'}
             </Link>
           </div>
         ) : (
@@ -21,7 +21,7 @@ export default function Home() {
               Войти
             </Link>
             <Link to="/register" className="btn btn-secondary">
-              Регистрация
+              Регистрация студента
             </Link>
           </div>
         )}

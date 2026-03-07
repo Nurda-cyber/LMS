@@ -1,28 +1,13 @@
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import AdminDashboard from './AdminDashboard';
+import TeacherDashboard from './TeacherDashboard';
+import StudentDashboard from './StudentDashboard';
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const role = user?.role || 'student';
 
-  return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <h1>LMS</h1>
-        <div className="dashboard-user">
-          <span>{user?.name || user?.email}</span>
-          <button type="button" onClick={logout} className="btn-logout">
-            Выйти
-          </button>
-        </div>
-      </header>
-      <main className="dashboard-main">
-        <div className="welcome-card">
-          <h2>Добро пожаловать</h2>
-          <p>Email: {user?.email}</p>
-          {user?.name && <p>Имя: {user.name}</p>}
-          <Link to="/">На главную</Link>
-        </div>
-      </main>
-    </div>
-  );
+  if (role === 'admin') return <AdminDashboard />;
+  if (role === 'teacher') return <TeacherDashboard />;
+  return <StudentDashboard />;
 }
