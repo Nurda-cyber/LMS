@@ -172,16 +172,19 @@ exports.removeMember = async (req, res) => {
   }
 };
 
-// ——— Задания курса (админ)
+// ——— Задания курса (доступ: участник курса — админ, преподаватель или студент)
 exports.listAssignments = async (req, res) => {
   try {
     const { id } = req.params;
+    const isStudent = req.user.role === 'student';
     const assignments = await Assignment.findAll({
       where: { courseId: id },
       order: [['createdAt', 'ASC']],
       include: [{
         model: AssignmentGrade,
         as: 'AssignmentGrades',
+        ...(isStudent ? { where: { userId: req.user.id } } : {}),
+        required: false,
         include: [{ model: User, as: 'User', attributes: ['id', 'email', 'name'] }]
       }]
     });

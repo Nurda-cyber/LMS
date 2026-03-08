@@ -133,8 +133,9 @@ export async function createCourse(name, description = '') {
 
 export async function getCourse(id) {
   const res = await fetch(`${API_BASE}/courses/${id}`, { headers: authHeaders() });
-  if (!res.ok) return null;
-  return res.json();
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Курс не найден');
+  return data;
 }
 
 export async function updateCourse(courseId, name, description = '') {
@@ -172,8 +173,9 @@ export async function removeCourseMember(courseId, userId) {
 
 export async function getCourseAssignments(courseId) {
   const res = await fetch(`${API_BASE}/courses/${courseId}/assignments`, { headers: authHeaders() });
-  if (!res.ok) return [];
-  return res.json();
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Ошибка загрузки заданий');
+  return Array.isArray(data) ? data : [];
 }
 
 export async function createAssignment(courseId, title, description = '') {

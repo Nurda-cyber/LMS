@@ -32,7 +32,7 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
   const [assignDesc, setAssignDesc] = useState('');
   const [assignSubmitting, setAssignSubmitting] = useState(false);
   const [gradeInputs, setGradeInputs] = useState({});
-  const [savingAssignmentId, setSavingAssignmentId] = useState(null);
+  const [savingGrades, setSavingGrades] = useState(false);
   const [deletingAssignId, setDeletingAssignId] = useState(null);
 
   const teachersNotInCourse = teachers.filter((t) => !courseTeachers.some((ct) => ct.id === t.id));
@@ -145,26 +145,27 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
     return g ? g.comment || '' : '';
   }
 
-  async function handleSaveAllGradesForAssignment(assignmentId) {
-    setSavingAssignmentId(assignmentId);
+  async function handleSaveAllGrades() {
+    setSavingGrades(true);
     setError('');
     try {
-      const assignment = assignments.find((a) => a.id === assignmentId);
-      for (const stu of courseStudents) {
-        const key = `${assignmentId}-${stu.id}`;
-        const commentKey = `comment-${assignmentId}-${stu.id}`;
-        const grade = gradeInputs[key] !== undefined ? gradeInputs[key] : getGradeFor(assignment, stu.id);
-        const comment = gradeInputs[commentKey] !== undefined ? gradeInputs[commentKey] : getGradeCommentFor(assignment, stu.id);
-        const gradeStr = String(grade ?? '').trim();
-        if (gradeStr !== '') {
-          await api.setAssignmentGrade(course.id, assignmentId, stu.id, gradeStr, (comment || '').trim());
+      for (const a of assignments) {
+        for (const stu of courseStudents) {
+          const key = `${a.id}-${stu.id}`;
+          const commentKey = `comment-${a.id}-${stu.id}`;
+          const grade = gradeInputs[key] !== undefined ? gradeInputs[key] : getGradeFor(a, stu.id);
+          const comment = gradeInputs[commentKey] !== undefined ? gradeInputs[commentKey] : getGradeCommentFor(a, stu.id);
+          const gradeStr = String(grade ?? '').trim();
+          if (gradeStr !== '') {
+            await api.setAssignmentGrade(course.id, a.id, stu.id, gradeStr, (comment || '').trim());
+          }
         }
       }
       onRefresh();
     } catch (err) {
       setError(err.message);
     } finally {
-      setSavingAssignmentId(null);
+      setSavingGrades(false);
     }
   }
 
@@ -286,7 +287,7 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
       <div className="course-assignments">
         <h4>Задания</h4>
         {canManageAssignments && (
-          <form onSubmit={handleAddAssignment} className="form-inline form-small">
+          <form onSubmit={handleAddAssignment} className="form-inline form-small assignment-add-form">
             <label>
               Название задания
               <input
@@ -311,83 +312,106 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
             </button>
           </form>
         )}
-        {assignments.length === 0 ? (
-          <p className="muted">{canManageAssignments ? 'Нет заданий. Добавьте задание выше.' : 'Нет заданий.'}</p>
-        ) : (
-          <ul className="assignments-list">
-            {assignments.map((a) => (
-              <li key={a.id} className="assignment-item">
-                <div className="assignment-item-head">
-                  <strong>{a.title}</strong>
-                  {a.description && <span className="assignment-desc"> — {a.description}</span>}
-                  {canManageAssignments && (
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteAssignment(a.id)}
-                      disabled={deletingAssignId === a.id}
-                      className="btn-remove btn-small"
-                    >
-                      {deletingAssignId === a.id ? '…' : 'Удалить'}
-                    </button>
+        {assignments.length > 0 && (
+          <>
+            {canManageAssignments && (
+              <ul className="assignments-titles-list">
+                {assignments.map((a) => (
+                  <li key={a.id} className="assignment-title-row">
+                    <span className="assignment-title-text">{a.title}</span>
+                    {a.description && <span className="assignment-desc-inline"> — {a.description}</span>}
+                    {canManageAssignments && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteAssignment(a.id)}
+                        disabled={deletingAssignId === a.id}
+                        className="btn-remove btn-small"
+                      >
+                        {deletingAssignId === a.id ? '…' : 'Удалить'}
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="grades-table-wrap">
+              <table className="grades-table">
+                <thead>
+                  <tr>
+                    <th className="grades-th-student">Учащийся</th>
+                    {assignments.map((a) => (
+                      <th key={a.id} className="grades-th-assignment">{a.title}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {courseStudents.length === 0 ? (
+                    <tr>
+                      <td colSpan={assignments.length + 1} className="grades-empty">
+                        {canManageAssignments ? 'Нет студентов на курсе. Добавьте студентов для выставления оценок.' : 'Нет студентов.'}
+                      </td>
+                    </tr>
+                  ) : (
+                    courseStudents.map((stu) => (
+                      <tr key={stu.id}>
+                        <td className="grades-td-student">{stu.name || stu.email}{stu.name && stu.email ? ` (${stu.email})` : ''}</td>
+                        {assignments.map((a) => {
+                          const key = `${a.id}-${stu.id}`;
+                          const commentKey = `comment-${a.id}-${stu.id}`;
+                          const currentGrade = getGradeFor(a, stu.id);
+                          const currentComment = getGradeCommentFor(a, stu.id);
+                          if (!canManageAssignments) {
+                            return (
+                              <td key={a.id} className="grades-td-cell grades-td-readonly">
+                                {currentGrade || '—'}
+                                {currentComment && <span className="grade-comment-inline" title={currentComment}> *</span>}
+                              </td>
+                            );
+                          }
+                          const inputVal = gradeInputs[key] !== undefined ? gradeInputs[key] : currentGrade;
+                          const commentVal = gradeInputs[commentKey] !== undefined ? gradeInputs[commentKey] : currentComment;
+                          return (
+                            <td key={a.id} className="grades-td-cell">
+                              <input
+                                type="text"
+                                className="grade-input grades-input"
+                                placeholder="Оценка"
+                                value={inputVal}
+                                onChange={(e) => setGradeInputs((prev) => ({ ...prev, [key]: e.target.value }))}
+                                title={commentVal ? `Комментарий: ${commentVal}` : ''}
+                              />
+                              <input
+                                type="text"
+                                className="grade-comment-input grades-comment-input"
+                                placeholder="Комм."
+                                value={commentVal}
+                                onChange={(e) => setGradeInputs((prev) => ({ ...prev, [commentKey]: e.target.value }))}
+                              />
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))
                   )}
-                </div>
-                {courseStudents.length === 0 ? (
-                  <p className="muted">{canManageAssignments ? 'Нет студентов на курсе — добавьте студентов, чтобы выставлять оценки.' : 'Нет студентов.'}</p>
-                ) : (
-                  <ul className="assignment-grades-list">
-                    {courseStudents.map((stu) => {
-                      const key = `${a.id}-${stu.id}`;
-                      const commentKey = `comment-${a.id}-${stu.id}`;
-                      const currentGrade = getGradeFor(a, stu.id);
-                      const currentComment = getGradeCommentFor(a, stu.id);
-                      if (!canManageAssignments) {
-                        return (
-                          <li key={stu.id} className="grade-row grade-row-readonly">
-                            <span className="grade-student">{stu.email}{stu.name ? ` (${stu.name})` : ''}</span>
-                            <span className="grade-value">Оценка: {currentGrade || '—'}</span>
-                            {currentComment && <span className="grade-comment-value">{currentComment}</span>}
-                          </li>
-                        );
-                      }
-                      const inputVal = gradeInputs[key] !== undefined ? gradeInputs[key] : currentGrade;
-                      const commentVal = gradeInputs[commentKey] !== undefined ? gradeInputs[commentKey] : currentComment;
-                      return (
-                        <li key={stu.id} className="grade-row">
-                          <span className="grade-student">{stu.email}{stu.name ? ` (${stu.name})` : ''}</span>
-                          <input
-                            type="text"
-                            className="grade-input"
-                            placeholder="Оценка"
-                            value={inputVal}
-                            onChange={(e) => setGradeInputs((prev) => ({ ...prev, [key]: e.target.value }))}
-                          />
-                          <input
-                            type="text"
-                            className="grade-comment-input"
-                            placeholder="Комментарий"
-                            value={commentVal}
-                            onChange={(e) => setGradeInputs((prev) => ({ ...prev, [commentKey]: e.target.value }))}
-                          />
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-                {canManageAssignments && courseStudents.length > 0 && (
-                  <div className="assignment-save-row">
-                    <button
-                      type="button"
-                      onClick={() => handleSaveAllGradesForAssignment(a.id)}
-                      disabled={savingAssignmentId === a.id}
-                      className="btn btn-primary btn-save-grades"
-                    >
-                      {savingAssignmentId === a.id ? 'Сохранение…' : 'Сохранить оценки'}
-                    </button>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
+                </tbody>
+              </table>
+            </div>
+            {canManageAssignments && courseStudents.length > 0 && (
+              <div className="grades-save-row">
+                <button
+                  type="button"
+                  onClick={handleSaveAllGrades}
+                  disabled={savingGrades}
+                  className="btn btn-primary btn-save-grades"
+                >
+                  {savingGrades ? 'Сохранение…' : 'Сохранить'}
+                </button>
+              </div>
+            )}
+          </>
+        )}
+        {assignments.length === 0 && (
+          <p className="muted">{canManageAssignments ? 'Нет заданий. Добавьте задание выше.' : 'Нет заданий.'}</p>
         )}
       </div>
     </div>

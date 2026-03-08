@@ -178,8 +178,45 @@
   background: #374151;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   padding-top: 0;
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.dashboard-sidebar.sidebar-expanded {
+  width: 280px;
+  min-width: 280px;
+  align-items: stretch;
+}
+
+.sidebar-expanded .sidebar-brand {
+  align-self: flex-start;
+  padding-left: 1rem;
+}
+
+.sidebar-expanded .sidebar-nav .sidebar-item {
+  flex-direction: row;
+  justify-content: flex-start;
+  padding-left: 0.75rem;
+  gap: 0.75rem;
+}
+
+.sidebar-expanded .sidebar-item-label {
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .dashboard-sidebar.sidebar-expanded {
+    width: 260px;
+    min-width: 260px;
+  }
+
+  .sidebar-courses-list {
+    max-height: 40vh;
+  }
 }
 
 .sidebar-accent {
@@ -202,6 +239,119 @@
   gap: 0.25rem;
   padding: 0 0.75rem;
   width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebar-item-courses {
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.sidebar-courses-drawer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.25rem 0 0.75rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  animation: sidebarDrawerIn 0.2s ease-out;
+}
+
+@keyframes sidebarDrawerIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.sidebar-create-course {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  text-align: left;
+}
+
+.sidebar-create-course:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.sidebar-courses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.sidebar-courses-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-courses-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.sidebar-courses-loading,
+.sidebar-courses-empty {
+  padding: 0.75rem;
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.sidebar-course-item {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 0.75rem;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-course-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.sidebar-course-item.selected {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-weight: 500;
+}
+
+.sidebar-course-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sidebar-item {
@@ -441,6 +591,44 @@
 .dashboard-content {
   max-width: 900px;
   color: #1e293b;
+}
+
+.content-panel {
+  width: 100%;
+  max-width: 100%;
+  animation: contentPanelIn 0.2s ease-out;
+}
+
+@keyframes contentPanelIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.content-panel-card {
+  margin-bottom: 1.5rem;
+}
+
+.content-welcome .role-desc {
+  margin-bottom: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.course-detail-panel .content-panel-card {
+  padding: 0;
+}
+
+.course-detail-panel .course-card {
+  border-radius: 12px;
 }
 
 .dashboard-content .course-card {
@@ -1015,6 +1203,145 @@
   font-size: 0.95rem;
   border-radius: 10px;
   min-width: 160px;
+}
+
+/* Таблица оценок: задания по горизонтали, учащиеся по вертикали */
+.assignments-titles-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.assignment-title-row {
+  padding: 0.25rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.assignment-title-text {
+  font-weight: 600;
+  color: #475569;
+}
+
+.assignment-add-form {
+  margin-bottom: 0.75rem;
+}
+
+.grades-table-wrap {
+  overflow-x: auto;
+  margin: 0.75rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+}
+
+.dashboard-content .grades-table-wrap {
+  border-color: #e2e8f0;
+}
+
+.grades-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.grades-table th,
+.grades-table td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.dashboard-content .grades-table th,
+.dashboard-content .grades-table td {
+  border-color: #e2e8f0;
+}
+
+.grades-table thead tr {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-content .grades-table thead tr {
+  background: #f1f5f9;
+}
+
+.grades-th-student {
+  min-width: 180px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.dashboard-content .grades-th-student {
+  color: #334155;
+}
+
+.grades-th-assignment {
+  min-width: 100px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.dashboard-content .grades-th-assignment {
+  color: #334155;
+}
+
+.grades-td-student {
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.dashboard-content .grades-td-student {
+  color: #1e293b;
+}
+
+.grades-td-cell {
+  min-width: 90px;
+}
+
+.grades-td-readonly {
+  color: #94a3b8;
+}
+
+.dashboard-content .grades-td-readonly {
+  color: #475569;
+}
+
+.grades-td-cell .grades-input {
+  width: 100%;
+  max-width: 80px;
+  margin-bottom: 0.25rem;
+}
+
+.grades-td-cell .grades-comment-input {
+  width: 100%;
+  max-width: 120px;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.4rem;
+}
+
+.grade-comment-inline {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.grades-empty {
+  color: #94a3b8;
+  font-style: italic;
+  padding: 1rem !important;
+}
+
+.grades-save-row {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dashboard-content .grades-save-row {
+  border-top-color: #e2e8f0;
 }
 
 /* My courses (student/teacher panel) */

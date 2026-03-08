@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useCourseSidebar } from '../context/CourseSidebarContext';
 import * as api from '../api/client';
 
 const ICON_COURSES = (
@@ -26,6 +27,13 @@ const ICON_BELL = (
   </svg>
 );
 
+const ICON_PLUS = (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
 function formatDate(iso) {
   if (!iso) return '—';
   try {
@@ -41,11 +49,27 @@ function formatDate(iso) {
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const {
+    coursesExpanded,
+    setCoursesExpanded,
+    selectedCourseId,
+    setSelectedCourseId,
+    openCreateCourse,
+    courses,
+    coursesLoading,
+    loadCourses,
+    canCreateCourse,
+  } = useCourseSidebar();
   const [notifications, setNotifications] = useState([]);
   const [bellOpen, setBellOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const bellRef = useRef(null);
   const avatarRef = useRef(null);
+
+  useEffect(() => {
+    if (coursesExpanded) loadCourses();
+  }, [coursesExpanded, loadCourses]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -95,19 +119,63 @@ export default function DashboardLayout() {
 
   return (
     <div className="dashboard-layout">
-      <aside className="dashboard-sidebar">
+      <aside className={`dashboard-sidebar ${coursesExpanded ? 'sidebar-expanded' : ''}`} aria-expanded={coursesExpanded}>
         <div className="sidebar-accent" />
         <div className="sidebar-brand">LMS</div>
         <nav className="sidebar-nav">
-          <NavLink
-            to="/dashboard"
-            end
-            className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+          <button
+            type="button"
+            onClick={() => {
+              const next = !coursesExpanded;
+              setCoursesExpanded(next);
+              if (next && location.pathname === '/dashboard/profile') {
+                navigate('/dashboard', { replace: true });
+              }
+            }}
+            className={`sidebar-item sidebar-item-courses ${coursesExpanded ? 'active' : ''}`}
             title="Курсы"
+            aria-expanded={coursesExpanded}
           >
             {ICON_COURSES}
             <span className="sidebar-item-label">Курсы</span>
-          </NavLink>
+          </button>
+          {coursesExpanded && (
+            <div className="sidebar-courses-drawer">
+              {canCreateCourse && (
+                <button
+                  type="button"
+                  className="sidebar-create-course"
+                  onClick={openCreateCourse}
+                >
+                  {ICON_PLUS}
+                  <span>Создать курс</span>
+                </button>
+              )}
+              <div className="sidebar-courses-list">
+                {coursesLoading ? (
+                  <p className="sidebar-courses-loading">Загрузка…</p>
+                ) : courses.length === 0 ? (
+                  <p className="sidebar-courses-empty">Нет курсов</p>
+                ) : (
+                  courses.map((course) => (
+                    <button
+                      key={course.id}
+                      type="button"
+                      className={`sidebar-course-item ${selectedCourseId === course.id ? 'selected' : ''}`}
+                      onClick={() => {
+                        setSelectedCourseId(course.id);
+                        if (location.pathname !== '/dashboard') {
+                          navigate('/dashboard', { replace: true });
+                        }
+                      }}
+                    >
+                      <span className="sidebar-course-name">{course.name}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
           <NavLink
             to="/dashboard/profile"
             className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
