@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+const bcrypt = require('bcryptjs');
+const { User, PasswordChangeRequest, Notification } = require('../models');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_this_in_production';
 const JWT_EXPIRES = process.env.JWT_EXPIRES || '7d';
@@ -117,6 +118,104 @@ exports.getStudents = async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
     res.json(students);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+};
+
+// ——— Профиль: запрос на смену пароля (отправляется администратору на одобрение)
+exports.requestPasswordChange = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Текущий и новый пароль обязательны' });
+    }
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
+    const match = await user.comparePassword(currentPassword);
+    if (!match) {
+      return res.status(401).json({ error: 'Неверный текущий пароль' });
+    }
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+    await PasswordChangeRequest.create({
+      userId: user.id,
+      newPasswordHash,
+      status: 'pending'
+    });
+    res.status(201).json({ message: 'Запрос на смену пароля отправлен администратору. Ожидайте одобрения.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ошибка при отправке запроса' });
+  }
+};
+
+// ——— Уведомления пользователя
+exports.getNotifications = async (req, res) => {
+  try {
+    const list = await Notification.findAll({
+      where: { userId: req.user.id },
+      order: [['createdAt', 'DESC']],
+      limit: 50
+    });
+    res.json(list);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+};
+
+exports.markNotificationRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const notification = await Notification.findOne({
+      where: { id: Number(id), userId: req.user.id }
+    });
+    if (!notification) return res.status(404).json({ error: 'Уведомление не найдено' });
+    await notification.update({ read: true });
+    res.json(notification);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+};
+
+// ——— Админ: список запросов на смену пароля
+exports.getPendingPasswordChanges = async (req, res) => {
+  try {
+    const list = await PasswordChangeRequest.findAll({
+      where: { status: 'pending' },
+      include: [{ model: User, as: 'User', attributes: ['id', 'email', 'name', 'role'] }],
+      order: [['createdAt', 'DESC']]
+    });
+    res.json(list);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+};
+
+// ——— Админ: одобрить смену пароля и отправить уведомление пользователю
+exports.acceptPasswordChange = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const request = await PasswordChangeRequest.findByPk(id, {
+      include: [{ model: User, as: 'User' }]
+    });
+    if (!request) return res.status(404).json({ error: 'Запрос не найден' });
+    if (request.status !== 'pending') {
+      return res.status(400).json({ error: 'Запрос уже обработан' });
+    }
+    const user = request.User;
+    if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
+    await user.update({ password: request.newPasswordHash });
+    await request.update({ status: 'accepted' });
+    await Notification.create({
+      userId: user.id,
+      message: 'Кабылданды. Ваш запрос на смену пароля одобрен администратором. Новый пароль активирован.',
+      read: false
+    });
+    res.json({ message: 'Пароль изменён. Пользователю отправлено уведомление.' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Ошибка сервера' });

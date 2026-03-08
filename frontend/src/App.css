@@ -433,3 +433,81 @@
   color: #94a3b8;
   font-size: 0.9rem;
 }
+
+/* Profile */
+.profile-info {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.profile-info li {
+  padding: 0.35rem 0;
+  color: #e2e8f0;
+}
+
+.auth-form label {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: #b0b0b0;
+  font-size: 0.9rem;
+}
+
+.auth-form input {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.65rem;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #fff;
+}
+
+.auth-form button[type="submit"] {
+  margin-top: 0.5rem;
+}
+
+.dashboard-user .btn-link {
+  font-size: 0.9rem;
+  padding: 0;
+  background: none;
+  border: none;
+  color: #7dd3fc;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.dashboard-user .btn-link:hover {
+  text-decoration: underline;
+}
+
+.notifications-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notifications-list li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.notification-message {
+  flex: 1 1 100%;
+  color: #e2e8f0;
+}
+
+.notification-date {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.notification-unread .notification-message {
+  font-weight: 500;
+}

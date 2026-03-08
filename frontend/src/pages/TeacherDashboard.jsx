@@ -16,6 +16,7 @@ export default function TeacherDashboard() {
       <header className="dashboard-header">
         <h1>LMS — Учитель</h1>
         <div className="dashboard-user">
+          <Link to="/dashboard/profile" className="btn-link">Профиль</Link>
           <span>{user?.name || user?.email}</span>
           <button type="button" onClick={logout} className="btn-logout">
             Выйти

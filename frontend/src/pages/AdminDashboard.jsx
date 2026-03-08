@@ -3,6 +3,18 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import * as api from '../api/client';
 
+function formatDate(iso) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleString('ru-RU', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  } catch {
+    return iso;
+  }
+}
+
 function CourseCard({ course, teachers, students, onRefresh }) {
   const users = (course.users || []).map((u) => ({ ...u, role: u.CourseUser?.role ?? u.role }));
   const courseTeachers = users.filter((u) => u.role === 'teacher');
@@ -206,11 +218,15 @@ export default function AdminDashboard() {
   const [courseDesc, setCourseDesc] = useState('');
   const [courseSubmitting, setCourseSubmitting] = useState(false);
   const [courseError, setCourseError] = useState('');
+  const [pendingPasswordChanges, setPendingPasswordChanges] = useState([]);
+  const [acceptingId, setAcceptingId] = useState(null);
+  const [acceptMessage, setAcceptMessage] = useState('');
 
   function loadAll() {
     api.getTeachers().then(setTeachers);
     api.getStudents().then(setStudents);
     api.getCourses().then(setCourses);
+    api.getPendingPasswordChanges().then(setPendingPasswordChanges);
   }
 
   useEffect(() => {
@@ -233,11 +249,26 @@ export default function AdminDashboard() {
     }
   }
 
+  async function handleAcceptPasswordChange(requestId) {
+    setAcceptMessage('');
+    setAcceptingId(requestId);
+    try {
+      const data = await api.acceptPasswordChange(requestId);
+      setAcceptMessage(data.message || 'Пароль изменён. Пользователю отправлено уведомление «Кабылданды».');
+      loadAll();
+    } catch (err) {
+      setAcceptMessage(err.message || 'Ошибка');
+    } finally {
+      setAcceptingId(null);
+    }
+  }
+
   return (
     <div className="dashboard">
       <header className="dashboard-header">
         <h1>LMS — Администратор</h1>
         <div className="dashboard-user">
+          <Link to="/dashboard/profile" className="btn-link">Профиль</Link>
           <span>{user?.name || user?.email}</span>
           <button type="button" onClick={logout} className="btn-logout">
             Выйти
@@ -245,6 +276,39 @@ export default function AdminDashboard() {
         </div>
       </header>
       <main className="dashboard-main">
+        {acceptMessage && (
+          <div className={acceptMessage.startsWith('Ошибка') ? 'auth-error' : 'auth-success'}>
+            {acceptMessage}
+          </div>
+        )}
+
+        {pendingPasswordChanges.length > 0 && (
+          <section className="welcome-card">
+            <h2>Запросы на смену пароля</h2>
+            <p className="role-desc">Одобрите запрос — пароль пользователя будет изменён, ему придёт уведомление «Кабылданды».</p>
+            <ul className="user-list">
+              {pendingPasswordChanges.map((req) => (
+                <li key={req.id}>
+                  <span>
+                    {req.User?.email}
+                    {req.User?.name ? ` (${req.User.name})` : ''}
+                    {' — '}
+                    {formatDate(req.createdAt)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleAcceptPasswordChange(req.id)}
+                    disabled={acceptingId === req.id}
+                    className="btn btn-primary btn-small"
+                  >
+                    {acceptingId === req.id ? '…' : 'Одобрить'}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         <section className="welcome-card">
           <h2>Создать курс</h2>
           <p className="role-desc">Сначала создайте курс, затем назначьте на него учителей и студентов.</p>

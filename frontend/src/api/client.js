@@ -36,6 +36,51 @@ export async function getMe() {
   return res.json();
 }
 
+export async function requestPasswordChange(currentPassword, newPassword) {
+  const res = await fetch(`${API_BASE}/auth/request-password-change`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ currentPassword, newPassword })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Ошибка запроса');
+  return data;
+}
+
+export async function getNotifications() {
+  const res = await fetch(`${API_BASE}/auth/notifications`, { headers: authHeaders() });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export async function markNotificationRead(id) {
+  const res = await fetch(`${API_BASE}/auth/notifications/${id}/read`, {
+    method: 'PATCH',
+    headers: authHeaders()
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Ошибка');
+  }
+  return res.json();
+}
+
+export async function getPendingPasswordChanges() {
+  const res = await fetch(`${API_BASE}/auth/pending-password-changes`, { headers: authHeaders() });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export async function acceptPasswordChange(requestId) {
+  const res = await fetch(`${API_BASE}/auth/pending-password-changes/${requestId}/accept`, {
+    method: 'POST',
+    headers: authHeaders()
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Ошибка одобрения');
+  return data;
+}
+
 function authHeaders() {
   return { Authorization: `Bearer ${localStorage.getItem('token')}` };
 }
