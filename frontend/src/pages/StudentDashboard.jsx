@@ -25,6 +25,24 @@ export default function StudentDashboard() {
               <li key={c.id} className="my-course-item">
                 <span className="my-course-name">{c.name}</span>
                 {c.description && <span className="my-course-desc"> — {c.description}</span>}
+                {(c.assignments || []).length > 0 && (
+                  <ul className="my-assignments-list">
+                    {c.assignments.map((a) => (
+                      <li key={a.id} className="my-assignment-item">
+                        <span className="assignment-title">{a.title}</span>
+                        {a.description && <span className="assignment-desc-inline"> — {a.description}</span>}
+                        {a.myGrade != null && a.myGrade !== '' ? (
+                          <span className="my-grade">Оценка: <strong>{a.myGrade}</strong></span>
+                        ) : (
+                          <span className="my-grade muted">Оценка не выставлена</span>
+                        )}
+                        {a.myGradeComment && (
+                          <span className="my-grade-comment">Комментарий: {a.myGradeComment}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>

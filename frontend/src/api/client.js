@@ -169,3 +169,53 @@ export async function removeCourseMember(courseId, userId) {
     throw new Error(data.error || 'Ошибка удаления');
   }
 }
+
+export async function getCourseAssignments(courseId) {
+  const res = await fetch(`${API_BASE}/courses/${courseId}/assignments`, { headers: authHeaders() });
+  if (!res.ok) return [];
+  return res.json();
+}
+
+export async function createAssignment(courseId, title, description = '') {
+  const res = await fetch(`${API_BASE}/courses/${courseId}/assignments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ title: title.trim(), description: description.trim() || undefined })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Ошибка создания задания');
+  return data;
+}
+
+export async function updateAssignment(courseId, assignmentId, title, description) {
+  const res = await fetch(`${API_BASE}/courses/${courseId}/assignments/${assignmentId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ title: title?.trim(), description: description !== undefined ? description : undefined })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Ошибка обновления задания');
+  return data;
+}
+
+export async function deleteAssignment(courseId, assignmentId) {
+  const res = await fetch(`${API_BASE}/courses/${courseId}/assignments/${assignmentId}`, {
+    method: 'DELETE',
+    headers: authHeaders()
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Ошибка удаления');
+  }
+}
+
+export async function setAssignmentGrade(courseId, assignmentId, userId, grade, comment = '') {
+  const res = await fetch(`${API_BASE}/courses/${courseId}/assignments/${assignmentId}/grades`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ userId, grade: String(grade).trim(), comment: comment.trim() || undefined })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Ошибка сохранения оценки');
+  return data;
+}

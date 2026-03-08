@@ -4,7 +4,7 @@ const cors = require('cors');
 const sequelize = require('./config/database');
 const authRoutes = require('./routes/auth');
 const courseRoutes = require('./routes/courses');
-const { User, Course, CourseUser, PasswordChangeRequest, Notification } = require('./models');
+const { User, Course, CourseUser, PasswordChangeRequest, Notification, Assignment, AssignmentGrade } = require('./models');
 
 const app = express();
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173', credentials: true }));
@@ -27,6 +27,8 @@ async function start() {
     await CourseUser.sync({ alter: true });
     await PasswordChangeRequest.sync({ alter: true });
     await Notification.sync({ alter: true });
+    await Assignment.sync({ alter: true });
+    await AssignmentGrade.sync({ alter: true });
     console.log('База данных подключена');
     app.listen(PORT, () => {
       console.log(`Сервер: http://localhost:${PORT}`);

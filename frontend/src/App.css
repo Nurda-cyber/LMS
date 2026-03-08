@@ -49,16 +49,20 @@
 .auth-card button[type="submit"] {
   width: 100%;
   margin-top: 0.5rem;
-  padding: 0.75rem;
-  background: #0ea5e9;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   color: #fff;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
 }
 
 .auth-card button[type="submit"]:hover:not(:disabled) {
-  background: #0284c7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
 }
 
 .auth-card button[type="submit"]:disabled {
@@ -115,26 +119,51 @@
 }
 
 .btn {
-  display: inline-block;
-  padding: 0.65rem 1.25rem;
-  border-radius: 8px;
-  font-weight: 500;
-  transition: opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.btn:hover {
-  opacity: 0.9;
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .btn-primary {
-  background: #0ea5e9;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   color: #fff;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.35);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.45);
 }
 
 .btn-secondary {
   background: rgba(255, 255, 255, 0.12);
   color: #e8e8e8;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 /* Dashboard layout: sidebar + topbar (PLATONUS-style) */
@@ -663,15 +692,31 @@
 
 .course-card-title .btn-link {
   font-size: 0.9rem;
-  padding: 0;
-  background: none;
-  border: none;
-  color: #7dd3fc;
+  font-weight: 600;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid rgba(14, 165, 233, 0.3);
+  color: #0ea5e9;
   cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .course-card-title .btn-link:hover {
-  text-decoration: underline;
+  background: rgba(14, 165, 233, 0.25);
+  border-color: rgba(14, 165, 233, 0.5);
+  text-decoration: none;
+}
+
+.dashboard-content .course-card-title .btn-link {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0284c7;
+}
+
+.dashboard-content .course-card-title .btn-link:hover {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
 }
 
 .course-edit-form label {
@@ -710,18 +755,24 @@
   white-space: nowrap;
 }
 
-.user-list-with-remove .btn-remove {
+.user-list-with-remove .btn-remove,
+.btn-remove {
   flex-shrink: 0;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.8rem;
-  background: rgba(239, 68, 68, 0.2);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  border-radius: 6px;
-  color: #fca5a5;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(185, 28, 28, 0.9) 100%);
+  color: #fff;
 }
 
-.user-list-with-remove .btn-remove:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.35);
+.user-list-with-remove .btn-remove:hover:not(:disabled),
+.btn-remove:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  transform: translateY(-1px);
 }
 
 .course-desc {
@@ -752,6 +803,182 @@
   color: #b0b0b0;
 }
 
+.course-assignments {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.course-assignments h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: #b0b0b0;
+}
+
+.dashboard-content .course-assignments {
+  border-top-color: #e2e8f0;
+}
+
+.dashboard-content .course-assignments h4 {
+  color: #475569;
+}
+
+.assignments-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+}
+
+.assignment-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.dashboard-content .assignment-item {
+  border-bottom-color: #e2e8f0;
+}
+
+.assignment-item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.assignment-item-head strong {
+  font-size: 0.95rem;
+}
+
+.assignment-desc {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.assignment-grades-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.25rem 0 0;
+}
+
+.grade-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  font-size: 0.9rem;
+}
+
+.grade-row-readonly .grade-value {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.grade-row-readonly .grade-comment-value {
+  display: block;
+  width: 100%;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin-top: 0.2rem;
+}
+
+.grade-student {
+  min-width: 140px;
+  color: #e2e8f0;
+}
+
+.dashboard-content .grade-student {
+  color: #475569;
+}
+
+.grade-input {
+  width: 70px;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff;
+}
+
+.dashboard-content .grade-input {
+  background: #fff;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+.grade-comment-input {
+  flex: 1;
+  min-width: 100px;
+  max-width: 200px;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff;
+}
+
+.dashboard-content .grade-comment-input {
+  background: #fff;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+.my-assignments-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 1rem;
+}
+
+.my-assignment-item {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.9rem;
+}
+
+.dashboard-content .my-assignment-item {
+  border-bottom-color: #e2e8f0;
+}
+
+.assignment-title {
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.dashboard-content .assignment-title {
+  color: #334155;
+}
+
+.assignment-desc-inline {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.my-grade {
+  margin-left: 0.5rem;
+  color: #86efac;
+}
+
+.dashboard-content .my-grade {
+  color: #15803d;
+}
+
+.my-grade.muted {
+  color: #94a3b8;
+}
+
+.dashboard-content .my-grade.muted {
+  color: #94a3b8;
+}
+
+.my-grade-comment {
+  display: block;
+  margin-top: 0.2rem;
+  margin-left: 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
 .form-small {
   margin-top: 0.5rem;
 }
@@ -768,8 +995,26 @@
 }
 
 .btn-small {
-  padding: 0.4rem 0.75rem;
-  font-size: 0.9rem;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.875rem;
+  border-radius: 8px;
+}
+
+.assignment-save-row {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dashboard-content .assignment-save-row {
+  border-top-color: #e2e8f0;
+}
+
+.btn-save-grades {
+  padding: 0.6rem 1.5rem;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  min-width: 160px;
 }
 
 /* My courses (student/teacher panel) */
