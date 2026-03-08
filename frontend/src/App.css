@@ -137,7 +137,371 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Dashboard */
+/* Dashboard layout: sidebar + topbar (PLATONUS-style) */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.dashboard-sidebar {
+  width: 72px;
+  min-width: 72px;
+  background: #374151;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 0;
+}
+
+.sidebar-accent {
+  height: 4px;
+  width: 100%;
+  background: #dc2626;
+}
+
+.sidebar-brand {
+  padding: 1rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0 0.75rem;
+  width: 100%;
+}
+
+.sidebar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.75rem 0;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.sidebar-item.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.sidebar-item svg {
+  flex-shrink: 0;
+}
+
+.sidebar-item-label {
+  font-size: 0.7rem;
+}
+
+.dashboard-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #f8fafc;
+}
+
+.dashboard-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.75rem 1.5rem;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  min-height: 56px;
+}
+
+.topbar-spacer {
+  flex: 1;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.topbar-bell-wrap,
+.topbar-avatar-wrap {
+  position: relative;
+}
+
+.topbar-bell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  position: relative;
+}
+
+.topbar-bell:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.topbar-bell-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.topbar-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-status {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #14b8a6;
+  border: 2px solid #fff;
+}
+
+.topbar-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  min-width: 280px;
+  max-width: 360px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e2e8f0;
+  z-index: 100;
+  padding: 0.75rem;
+}
+
+.topbar-dropdown-title {
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.topbar-dropdown-notifications .muted {
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.notifications-dropdown-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.notifications-dropdown-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.85rem;
+}
+
+.notifications-dropdown-list li.unread {
+  background: #f8fafc;
+}
+
+.notifications-dropdown-list .notif-msg {
+  display: block;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.notifications-dropdown-list .notif-date {
+  font-size: 0.8rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.topbar-dropdown-profile {
+  padding: 0.5rem 0;
+}
+
+.topbar-dropdown-user {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  color: #475569;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 0.25rem;
+}
+
+.topbar-dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border: none;
+  background: none;
+  font-size: 0.9rem;
+  color: #334155;
+  cursor: pointer;
+}
+
+.topbar-dropdown-item:hover {
+  background: #f8fafc;
+}
+
+.topbar-dropdown-logout {
+  color: #dc2626;
+}
+
+.dashboard-main {
+  padding: 2rem 1.5rem;
+  flex: 1;
+  background: #f8fafc;
+}
+
+.dashboard-content {
+  max-width: 900px;
+  color: #1e293b;
+}
+
+.dashboard-content .course-card {
+  background: #fff;
+  border-color: #e2e8f0;
+}
+
+.dashboard-content .course-card-title h3,
+.dashboard-content .course-members-block h4 {
+  color: #475569;
+}
+
+.dashboard-content .form-inline input,
+.dashboard-content .auth-form input,
+.dashboard-content .course-edit-form input {
+  background: #fff;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+.dashboard-content .form-small select {
+  background: #fff;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+.dashboard-content .welcome-card {
+  background: #fff;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-content .welcome-card h2 {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.dashboard-content .welcome-card p,
+.dashboard-content .muted {
+  color: #475569;
+}
+
+/* Надписи в профиле: хорошо видны */
+.dashboard-content .profile-info li {
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+.dashboard-content .profile-info li strong {
+  color: #0f172a;
+  font-weight: 600;
+  margin-right: 0.35rem;
+}
+
+.dashboard-content .auth-form label {
+  color: #334155;
+  font-weight: 500;
+}
+
+.dashboard-content .role-desc {
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.dashboard-content .notifications-list .notification-message {
+  color: #1e293b;
+}
+
+.dashboard-content .notifications-list .notification-date {
+  color: #475569;
+  font-weight: 500;
+}
+
+.dashboard-content .welcome-card a {
+  color: #0ea5e9;
+}
+
+.dashboard-content .auth-error {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #b91c1c;
+}
+
+.dashboard-content .auth-success {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #15803d;
+}
+
+/* Legacy dashboard (if used elsewhere) */
 .dashboard {
   min-height: 100vh;
 }
@@ -172,10 +536,6 @@
 
 .btn-logout:hover {
   background: rgba(255, 255, 255, 0.08);
-}
-
-.dashboard-main {
-  padding: 2rem 1.5rem;
 }
 
 .welcome-card {

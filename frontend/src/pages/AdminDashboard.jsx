@@ -210,7 +210,7 @@ function CourseCard({ course, teachers, students, onRefresh }) {
 }
 
 export default function AdminDashboard() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -264,19 +264,8 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <h1>LMS — Администратор</h1>
-        <div className="dashboard-user">
-          <Link to="/dashboard/profile" className="btn-link">Профиль</Link>
-          <span>{user?.name || user?.email}</span>
-          <button type="button" onClick={logout} className="btn-logout">
-            Выйти
-          </button>
-        </div>
-      </header>
-      <main className="dashboard-main">
-        {acceptMessage && (
+    <div className="dashboard-content">
+      {acceptMessage && (
           <div className={acceptMessage.startsWith('Ошибка') ? 'auth-error' : 'auth-success'}>
             {acceptMessage}
           </div>
@@ -358,7 +347,6 @@ export default function AdminDashboard() {
           )}
         </section>
         <p><Link to="/">На главную</Link></p>
-      </main>
     </div>
   );
 }

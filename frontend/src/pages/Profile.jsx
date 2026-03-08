@@ -21,7 +21,7 @@ function formatDate(iso) {
 }
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -84,19 +84,8 @@ export default function Profile() {
   const displayUser = profile || user;
 
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <h1>LMS — Профиль</h1>
-        <div className="dashboard-user">
-          <span>{displayUser?.name || displayUser?.email}</span>
-          <Link to="/dashboard" className="btn-link">В дашборд</Link>
-          <button type="button" onClick={logout} className="btn-logout">
-            Выйти
-          </button>
-        </div>
-      </header>
-      <main className="dashboard-main">
-        <section className="welcome-card">
+    <div className="dashboard-content">
+      <section className="welcome-card">
           <h2>Информация о себе</h2>
           {displayUser ? (
             <ul className="profile-info">
@@ -181,8 +170,7 @@ export default function Profile() {
           )}
         </section>
 
-        <p><Link to="/dashboard">На дашборд</Link></p>
-      </main>
+        <p><Link to="/dashboard">К курсам</Link></p>
     </div>
   );
 }
