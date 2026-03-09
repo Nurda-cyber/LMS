@@ -24,13 +24,17 @@ exports.myCourses = async (req, res) => {
     const assignmentsByCourse = {};
     assignments.forEach((a) => {
       if (!assignmentsByCourse[a.courseId]) assignmentsByCourse[a.courseId] = [];
+      const g = a.AssignmentGrades?.[0];
       assignmentsByCourse[a.courseId].push({
         id: a.id,
         title: a.title,
         description: a.description,
-        myGrade: a.AssignmentGrades?.[0]?.grade ?? null,
-        myGradeComment: a.AssignmentGrades?.[0]?.comment ?? null,
-        gradedAt: a.AssignmentGrades?.[0]?.updatedAt ?? null
+        dueAt: a.dueAt,
+        myGrade: g?.grade ?? null,
+        myGradeComment: g?.comment ?? null,
+        mySubmissionText: g?.submissionText ?? null,
+        mySubmittedAt: g?.submittedAt ?? null,
+        gradedAt: g?.updatedAt ?? null
       });
     });
     const courses = enrollments.map((e) => ({
@@ -192,6 +196,7 @@ exports.listAssignments = async (req, res) => {
       id: a.id,
       title: a.title,
       description: a.description,
+      dueAt: a.dueAt,
       createdAt: a.createdAt,
       grades: (a.AssignmentGrades || []).map((g) => ({
         id: g.id,
@@ -200,6 +205,8 @@ exports.listAssignments = async (req, res) => {
         name: g.User?.name,
         grade: g.grade,
         comment: g.comment,
+        submissionText: g.submissionText,
+        submittedAt: g.submittedAt,
         updatedAt: g.updatedAt
       }))
     }));
@@ -213,7 +220,7 @@ exports.listAssignments = async (req, res) => {
 exports.createAssignment = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description } = req.body;
+    const { title, description, dueAt } = req.body;
     if (!title || !title.trim()) {
       return res.status(400).json({ error: 'Название задания обязательно' });
     }
@@ -222,7 +229,8 @@ exports.createAssignment = async (req, res) => {
     const assignment = await Assignment.create({
       courseId: Number(id),
       title: title.trim(),
-      description: description ? description.trim() : null
+      description: description ? description.trim() : null,
+      dueAt: dueAt ? new Date(dueAt) : null
     });
     res.status(201).json(assignment);
   } catch (err) {
@@ -234,13 +242,14 @@ exports.createAssignment = async (req, res) => {
 exports.updateAssignment = async (req, res) => {
   try {
     const { id, assignmentId } = req.params;
-    const { title, description } = req.body;
+    const { title, description, dueAt } = req.body;
     const assignment = await Assignment.findOne({
       where: { id: assignmentId, courseId: id }
     });
     if (!assignment) return res.status(404).json({ error: 'Задание не найдено' });
     if (title !== undefined) assignment.title = title.trim() || assignment.title;
     if (description !== undefined) assignment.description = description === '' ? null : description.trim();
+    if (dueAt !== undefined) assignment.dueAt = dueAt ? new Date(dueAt) : null;
     await assignment.save();
     res.json(assignment);
   } catch (err) {
@@ -263,13 +272,60 @@ exports.deleteAssignment = async (req, res) => {
   }
 };
 
+/** Отправка задания студентом: один раз, до истечения срока. */
+exports.submitAssignment = async (req, res) => {
+  try {
+    const { id: courseId, assignmentId } = req.params;
+    const { submissionText } = req.body;
+    const userId = req.user.id;
+    if (req.user.role !== 'student') {
+      return res.status(403).json({ error: 'Отправлять задание могут только студенты' });
+    }
+    const isOnCourse = await CourseUser.findOne({
+      where: { courseId, userId, role: 'student' }
+    });
+    if (!isOnCourse) {
+      return res.status(403).json({ error: 'Вы не записаны на этот курс как студент' });
+    }
+    const assignment = await Assignment.findOne({
+      where: { id: assignmentId, courseId }
+    });
+    if (!assignment) {
+      return res.status(404).json({ error: 'Задание не найдено' });
+    }
+    const now = new Date();
+    if (assignment.dueAt && new Date(assignment.dueAt) < now) {
+      return res.status(400).json({ error: 'Крайний срок истёк. Отправка закрыта.' });
+    }
+    const existing = await AssignmentGrade.findOne({
+      where: { assignmentId: assignment.id, userId }
+    });
+    if (existing) {
+      return res.status(400).json({ error: 'Задание уже отправлено. Повторная отправка не разрешена.' });
+    }
+    const record = await AssignmentGrade.create({
+      assignmentId: assignment.id,
+      userId,
+      submissionText: submissionText != null ? String(submissionText).trim() : null,
+      submittedAt: now,
+      grade: null,
+      comment: null
+    });
+    res.status(201).json(record);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ошибка при отправке задания' });
+  }
+};
+
 exports.setGrade = async (req, res) => {
   try {
     const { id, assignmentId } = req.params;
     const { userId, grade, comment } = req.body;
-    if (!userId || grade === undefined || grade === null || String(grade).trim() === '') {
-      return res.status(400).json({ error: 'Укажите userId и оценку (grade)' });
+    if (!userId) {
+      return res.status(400).json({ error: 'Укажите userId' });
     }
+    const gradeStr = grade !== undefined && grade !== null ? String(grade).trim() : '';
     const assignment = await Assignment.findOne({
       where: { id: assignmentId, courseId: id }
     });
@@ -282,11 +338,14 @@ exports.setGrade = async (req, res) => {
     }
     const [record] = await AssignmentGrade.findOrCreate({
       where: { assignmentId: assignment.id, userId: Number(userId) },
-      defaults: { grade: String(grade).trim(), comment: comment ? comment.trim() : null }
+      defaults: { grade: gradeStr || null, comment: comment ? comment.trim() : null }
     });
     if (!record.isNewRecord) {
-      record.grade = String(grade).trim();
-      record.comment = comment !== undefined ? (comment ? comment.trim() : null) : record.comment;
+      if (gradeStr !== '') record.grade = gradeStr;
+      if (comment !== undefined) record.comment = comment ? comment.trim() : null;
+      await record.save();
+    } else if (gradeStr === '') {
+      record.grade = null;
       await record.save();
     }
     const withUser = await AssignmentGrade.findByPk(record.id, {

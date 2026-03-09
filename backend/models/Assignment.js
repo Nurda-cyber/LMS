@@ -20,6 +20,11 @@ const Assignment = sequelize.define('Assignment', {
   description: {
     type: DataTypes.TEXT,
     allowNull: true
+  },
+  dueAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    comment: 'Крайний срок сдачи (дата и время)'
   }
 }, {
   tableName: 'assignments',

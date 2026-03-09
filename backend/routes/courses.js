@@ -19,6 +19,7 @@ router.get('/:id/assignments', auth, requireCourseMember, courseController.listA
 router.post('/:id/assignments', auth, requireAdminOrCourseTeacher, courseController.createAssignment);
 router.put('/:id/assignments/:assignmentId', auth, requireAdminOrCourseTeacher, courseController.updateAssignment);
 router.delete('/:id/assignments/:assignmentId', auth, requireAdminOrCourseTeacher, courseController.deleteAssignment);
+router.post('/:id/assignments/:assignmentId/submit', auth, requireCourseMember, courseController.submitAssignment);
 router.post('/:id/assignments/:assignmentId/grades', auth, requireAdminOrCourseTeacher, courseController.setGrade);
 
 module.exports = router;

@@ -30,6 +30,7 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
   const [removingId, setRemovingId] = useState(null);
   const [assignTitle, setAssignTitle] = useState('');
   const [assignDesc, setAssignDesc] = useState('');
+  const [assignDueAt, setAssignDueAt] = useState('');
   const [assignSubmitting, setAssignSubmitting] = useState(false);
   const [gradeInputs, setGradeInputs] = useState({});
   const [savingGrades, setSavingGrades] = useState(false);
@@ -111,9 +112,10 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
     setError('');
     setAssignSubmitting(true);
     try {
-      await api.createAssignment(course.id, assignTitle.trim(), assignDesc.trim());
+      await api.createAssignment(course.id, assignTitle.trim(), assignDesc.trim(), assignDueAt || null);
       setAssignTitle('');
       setAssignDesc('');
+      setAssignDueAt('');
       onRefresh();
     } catch (err) {
       setError(err.message);
@@ -143,6 +145,11 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
   function getGradeCommentFor(assignment, userId) {
     const g = (assignment.grades || []).find((gr) => Number(gr.userId) === Number(userId));
     return g ? g.comment || '' : '';
+  }
+
+  function getGradeSubmissionFor(assignment, userId) {
+    const g = (assignment.grades || []).find((gr) => Number(gr.userId) === Number(userId));
+    return g ? g.submissionText || '' : '';
   }
 
   async function handleSaveAllGrades() {
@@ -307,6 +314,15 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
                 placeholder="Краткое описание"
               />
             </label>
+            <label>
+              Крайний срок (необяз.)
+              <input
+                type="datetime-local"
+                value={assignDueAt}
+                onChange={(e) => setAssignDueAt(e.target.value)}
+                title="Дата и время сдачи"
+              />
+            </label>
             <button type="submit" disabled={assignSubmitting} className="btn btn-primary btn-small">
               {assignSubmitting ? '…' : 'Добавить задание'}
             </button>
@@ -320,6 +336,11 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
                   <li key={a.id} className="assignment-title-row">
                     <span className="assignment-title-text">{a.title}</span>
                     {a.description && <span className="assignment-desc-inline"> — {a.description}</span>}
+                    {a.dueAt && (
+                      <span className="assignment-due-inline" title="Крайний срок">
+                        {' '}· Срок: {formatDate(a.dueAt)}
+                      </span>
+                    )}
                     {canManageAssignments && (
                       <button
                         type="button"
@@ -360,6 +381,7 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
                           const commentKey = `comment-${a.id}-${stu.id}`;
                           const currentGrade = getGradeFor(a, stu.id);
                           const currentComment = getGradeCommentFor(a, stu.id);
+                          const submissionText = getGradeSubmissionFor(a, stu.id);
                           if (!canManageAssignments) {
                             return (
                               <td key={a.id} className="grades-td-cell grades-td-readonly">
@@ -387,6 +409,11 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
                                 value={commentVal}
                                 onChange={(e) => setGradeInputs((prev) => ({ ...prev, [commentKey]: e.target.value }))}
                               />
+                              {submissionText ? (
+                                <div className="grade-submission-preview" title={submissionText}>
+                                  Ответ: {submissionText.length > 80 ? `${submissionText.slice(0, 80)}…` : submissionText}
+                                </div>
+                              ) : null}
                             </td>
                           );
                         })}

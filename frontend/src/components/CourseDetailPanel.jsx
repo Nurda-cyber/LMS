@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCourseSidebar } from '../context/CourseSidebarContext';
 import * as api from '../api/client';
 import { CourseCard } from '../pages/AdminDashboard';
+import StudentCourseView from './StudentCourseView';
 
 export default function CourseDetailPanel({ courseId }) {
   const { user } = useAuth();
@@ -67,24 +68,35 @@ export default function CourseDetailPanel({ courseId }) {
   const canManageAssignments = role === 'admin' || role === 'teacher';
   const showMembersManagement = role === 'admin';
   const showCourseEdit = role === 'admin';
+  const isStudent = role === 'student';
+
+  const refreshCourseAndAssignments = () => {
+    refreshCourses();
+    api.getCourse(courseId).then(setCourse);
+    api.getCourseAssignments(courseId).then(setAssignments);
+  };
 
   return (
     <div className="dashboard-content content-panel course-detail-panel">
       <div className="content-panel-card">
-        <CourseCard
-          course={course}
-          teachers={teachers}
-          students={students}
-          assignments={assignments}
-          onRefresh={() => {
-            refreshCourses();
-            api.getCourse(courseId).then(setCourse);
-            api.getCourseAssignments(courseId).then(setAssignments);
-          }}
-          canManageAssignments={canManageAssignments}
-          showMembersManagement={showMembersManagement}
-          showCourseEdit={showCourseEdit}
-        />
+        {isStudent ? (
+          <StudentCourseView
+            course={course}
+            assignments={assignments}
+            onRefresh={refreshCourseAndAssignments}
+          />
+        ) : (
+          <CourseCard
+            course={course}
+            teachers={teachers}
+            students={students}
+            assignments={assignments}
+            onRefresh={refreshCourseAndAssignments}
+            canManageAssignments={canManageAssignments}
+            showMembersManagement={showMembersManagement}
+            showCourseEdit={showCourseEdit}
+          />
+        )}
       </div>
     </div>
   );

@@ -178,25 +178,44 @@ export async function getCourseAssignments(courseId) {
   return Array.isArray(data) ? data : [];
 }
 
-export async function createAssignment(courseId, title, description = '') {
+export async function createAssignment(courseId, title, description = '', dueAt = null) {
   const res = await fetch(`${API_BASE}/courses/${courseId}/assignments`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ title: title.trim(), description: description.trim() || undefined })
+    body: JSON.stringify({
+      title: title.trim(),
+      description: description.trim() || undefined,
+      dueAt: dueAt || undefined
+    })
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Ошибка создания задания');
   return data;
 }
 
-export async function updateAssignment(courseId, assignmentId, title, description) {
+export async function updateAssignment(courseId, assignmentId, title, description, dueAt) {
   const res = await fetch(`${API_BASE}/courses/${courseId}/assignments/${assignmentId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ title: title?.trim(), description: description !== undefined ? description : undefined })
+    body: JSON.stringify({
+      title: title?.trim(),
+      description: description !== undefined ? description : undefined,
+      dueAt: dueAt !== undefined ? dueAt : undefined
+    })
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Ошибка обновления задания');
+  return data;
+}
+
+export async function submitAssignment(courseId, assignmentId, submissionText) {
+  const res = await fetch(`${API_BASE}/courses/${courseId}/assignments/${assignmentId}/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ submissionText: submissionText != null ? String(submissionText).trim() : '' })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Ошибка отправки задания');
   return data;
 }
 
