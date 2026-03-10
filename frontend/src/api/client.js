@@ -48,14 +48,26 @@ export async function requestPasswordChange(currentPassword, newPassword) {
 }
 
 export async function getNotifications() {
-  const res = await fetch(`${API_BASE}/auth/notifications`, { headers: authHeaders() });
+  const res = await fetch(`${API_BASE}/notifications`, { headers: authHeaders() });
   if (!res.ok) return [];
   return res.json();
 }
 
 export async function markNotificationRead(id) {
-  const res = await fetch(`${API_BASE}/auth/notifications/${id}/read`, {
-    method: 'PATCH',
+  const res = await fetch(`${API_BASE}/notifications/${id}/read`, {
+    method: 'PUT',
+    headers: authHeaders()
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Ошибка');
+  }
+  return res.json();
+}
+
+export async function deleteNotification(id) {
+  const res = await fetch(`${API_BASE}/notifications/${id}`, {
+    method: 'DELETE',
     headers: authHeaders()
   });
   if (!res.ok) {
@@ -219,6 +231,20 @@ export async function submitAssignment(courseId, assignmentId, submissionText) {
   return data;
 }
 
+/** Отправка задания файлом (PDF, DOCX). Максимум 10 МБ. */
+export async function submitAssignmentFile(assignmentId, file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  const res = await fetch(`${API_BASE}/assignments/${assignmentId}/submit`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: formData
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Ошибка отправки файла');
+  return data;
+}
+
 export async function deleteAssignment(courseId, assignmentId) {
   const res = await fetch(`${API_BASE}/courses/${courseId}/assignments/${assignmentId}`, {
     method: 'DELETE',
@@ -239,4 +265,14 @@ export async function setAssignmentGrade(courseId, assignmentId, userId, grade, 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'Ошибка сохранения оценки');
   return data;
+}
+
+/** Список отправленных работ по заданию (для учителя/админа). */
+export async function getAssignmentSubmissions(assignmentId) {
+  const res = await fetch(`${API_BASE}/submissions/assignments/${assignmentId}/submissions`, {
+    headers: authHeaders()
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Ошибка загрузки работ');
+  return Array.isArray(data) ? data : [];
 }

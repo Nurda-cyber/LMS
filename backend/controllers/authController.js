@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { User, PasswordChangeRequest, Notification } = require('../models');
+const { User, PasswordChangeRequest } = require('../models');
+const notificationService = require('../services/notificationService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_jwt_key_change_this_in_production';
 const JWT_EXPIRES = process.env.JWT_EXPIRES || '7d';
@@ -150,36 +151,6 @@ exports.requestPasswordChange = async (req, res) => {
   }
 };
 
-// ——— Уведомления пользователя
-exports.getNotifications = async (req, res) => {
-  try {
-    const list = await Notification.findAll({
-      where: { userId: req.user.id },
-      order: [['createdAt', 'DESC']],
-      limit: 50
-    });
-    res.json(list);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Ошибка сервера' });
-  }
-};
-
-exports.markNotificationRead = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const notification = await Notification.findOne({
-      where: { id: Number(id), userId: req.user.id }
-    });
-    if (!notification) return res.status(404).json({ error: 'Уведомление не найдено' });
-    await notification.update({ read: true });
-    res.json(notification);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Ошибка сервера' });
-  }
-};
-
 // ——— Админ: список запросов на смену пароля
 exports.getPendingPasswordChanges = async (req, res) => {
   try {
@@ -210,10 +181,11 @@ exports.acceptPasswordChange = async (req, res) => {
     if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
     await user.update({ password: request.newPasswordHash });
     await request.update({ status: 'accepted' });
-    await Notification.create({
+    await notificationService.createNotification({
       userId: user.id,
-      message: 'Кабылданды. Ваш запрос на смену пароля одобрен администратором. Новый пароль активирован.',
-      read: false
+      title: 'Смена пароля одобрена',
+      message: 'Ваш запрос на смену пароля одобрен администратором. Новый пароль активирован.',
+      type: 'system'
     });
     res.json({ message: 'Пароль изменён. Пользователю отправлено уведомление.' });
   } catch (err) {

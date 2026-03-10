@@ -6,6 +6,7 @@ const PasswordChangeRequest = require('./PasswordChangeRequest');
 const Notification = require('./Notification');
 const Assignment = require('./Assignment');
 const AssignmentGrade = require('./AssignmentGrade');
+const Submission = require('./Submission');
 
 User.belongsToMany(Course, { through: CourseUser, foreignKey: 'userId', as: 'courses' });
 Course.belongsToMany(User, { through: CourseUser, foreignKey: 'courseId', as: 'users' });
@@ -24,6 +25,14 @@ PasswordChangeRequest.belongsTo(User, { foreignKey: 'userId' });
 User.hasMany(Notification, { foreignKey: 'userId' });
 Notification.belongsTo(User, { foreignKey: 'userId' });
 
-const db = { sequelize, User, Course, CourseUser, PasswordChangeRequest, Notification, Assignment, AssignmentGrade };
+Assignment.hasMany(Notification, { foreignKey: 'assignmentId' });
+Notification.belongsTo(Assignment, { foreignKey: 'assignmentId' });
+
+Assignment.hasMany(Submission, { foreignKey: 'assignmentId', as: 'Submissions' });
+Submission.belongsTo(Assignment, { foreignKey: 'assignmentId' });
+User.hasMany(Submission, { foreignKey: 'studentId', as: 'Submissions' });
+Submission.belongsTo(User, { foreignKey: 'studentId', as: 'Student' });
+
+const db = { sequelize, User, Course, CourseUser, PasswordChangeRequest, Notification, Assignment, AssignmentGrade, Submission };
 
 module.exports = db;

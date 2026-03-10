@@ -1344,6 +1344,21 @@
   border-top-color: #e2e8f0;
 }
 
+.grade-file-link {
+  display: inline-block;
+  font-size: 0.8rem;
+  margin-top: 0.35rem;
+  color: #38bdf8;
+}
+
+.dashboard-content .grade-file-link {
+  color: #0284c7;
+}
+
+.grade-file-link:hover {
+  text-decoration: underline;
+}
+
 .grade-submission-preview {
   font-size: 0.75rem;
   color: #94a3b8;
@@ -1556,6 +1571,32 @@
 .dashboard-content .assignment-student-textarea:focus {
   border-color: #0ea5e9;
   box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+}
+
+.assignment-student-file-upload {
+  margin: 1rem 0 0.75rem;
+}
+
+.assignment-student-file-input {
+  display: block;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.dashboard-content .assignment-student-file-input {
+  color: #1e293b;
+}
+
+.assignment-student-file-name {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+.dashboard-content .assignment-student-file-name {
+  color: #64748b;
 }
 
 .assignment-student-answer-readonly {

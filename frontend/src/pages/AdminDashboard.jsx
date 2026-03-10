@@ -35,6 +35,7 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
   const [gradeInputs, setGradeInputs] = useState({});
   const [savingGrades, setSavingGrades] = useState(false);
   const [deletingAssignId, setDeletingAssignId] = useState(null);
+  const [submissionsByAssignment, setSubmissionsByAssignment] = useState({});
 
   const teachersNotInCourse = teachers.filter((t) => !courseTeachers.some((ct) => ct.id === t.id));
   const studentsNotInCourse = students.filter((s) => !courseStudents.some((cs) => cs.id === s.id));
@@ -151,6 +152,30 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
     const g = (assignment.grades || []).find((gr) => Number(gr.userId) === Number(userId));
     return g ? g.submissionText || '' : '';
   }
+
+  function getFileSubmissionFor(assignmentId, userId) {
+    const list = submissionsByAssignment[assignmentId] || [];
+    return list.find((s) => Number(s.studentId) === Number(userId)) || null;
+  }
+
+  useEffect(() => {
+    if (!course?.id || !assignments?.length) return;
+    let cancelled = false;
+    const load = async () => {
+      const byId = {};
+      for (const a of assignments) {
+        try {
+          const list = await api.getAssignmentSubmissions(a.id);
+          if (!cancelled) byId[a.id] = list;
+        } catch {
+          if (!cancelled) byId[a.id] = [];
+        }
+      }
+      if (!cancelled) setSubmissionsByAssignment(byId);
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [course?.id, assignments?.length, assignments?.map((a) => a.id).join(',')]);
 
   async function handleSaveAllGrades() {
     setSavingGrades(true);
@@ -392,6 +417,7 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
                           }
                           const inputVal = gradeInputs[key] !== undefined ? gradeInputs[key] : currentGrade;
                           const commentVal = gradeInputs[commentKey] !== undefined ? gradeInputs[commentKey] : currentComment;
+                          const fileSubmission = getFileSubmissionFor(a.id, stu.id);
                           return (
                             <td key={a.id} className="grades-td-cell">
                               <input
@@ -409,6 +435,16 @@ function CourseCard({ course, teachers, students, assignments = [], onRefresh, c
                                 value={commentVal}
                                 onChange={(e) => setGradeInputs((prev) => ({ ...prev, [commentKey]: e.target.value }))}
                               />
+                              {fileSubmission?.fileUrl ? (
+                                <a
+                                  href={fileSubmission.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="grade-file-link"
+                                >
+                                  Скачать файл
+                                </a>
+                              ) : null}
                               {submissionText ? (
                                 <div className="grade-submission-preview" title={submissionText}>
                                   Ответ: {submissionText.length > 80 ? `${submissionText.slice(0, 80)}…` : submissionText}

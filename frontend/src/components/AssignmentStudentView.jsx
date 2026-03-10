@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import * as api from '../api/client';
+
+const MAX_FILE_MB = 10;
+const ACCEPT_FILES = '.pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
 function formatDeadline(iso) {
   if (!iso) return null;
@@ -25,10 +28,39 @@ export default function AssignmentStudentView({ assignment, courseId, onSubmitte
   const mySubmissionText = myGrade?.submissionText ?? '';
 
   const [submissionText, setSubmissionText] = useState(mySubmissionText || '');
+  const [selectedFile, setSelectedFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const fileInputRef = useRef(null);
 
   const canSubmit = !alreadySubmitted && !isPastDeadline;
+
+  function handleFileChange(e) {
+    const file = e.target.files?.[0];
+    setError('');
+    if (!file) {
+      setSelectedFile(null);
+      return;
+    }
+    const sizeMB = file.size / (1024 * 1024);
+    if (sizeMB > MAX_FILE_MB) {
+      setError(`Файл слишком большой. Максимум ${MAX_FILE_MB} МБ.`);
+      setSelectedFile(null);
+      e.target.value = '';
+      return;
+    }
+    const ext = (file.name || '').toLowerCase().split('.').pop();
+    const ok = file.type === 'application/pdf' ||
+      file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      ext === 'pdf' || ext === 'docx';
+    if (!ok) {
+      setError('Допустимы только файлы PDF и DOCX.');
+      setSelectedFile(null);
+      e.target.value = '';
+      return;
+    }
+    setSelectedFile(file);
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -36,7 +68,11 @@ export default function AssignmentStudentView({ assignment, courseId, onSubmitte
     setError('');
     setSubmitting(true);
     try {
-      await api.submitAssignment(courseId, assignment.id, submissionText);
+      if (selectedFile) {
+        await api.submitAssignmentFile(assignment.id, selectedFile);
+      } else {
+        await api.submitAssignment(courseId, assignment.id, submissionText);
+      }
       onSubmitted?.();
     } catch (err) {
       setError(err.message || 'Ошибка отправки');
@@ -76,15 +112,33 @@ export default function AssignmentStudentView({ assignment, courseId, onSubmitte
         </div>
       ) : (
         <>
-          <p className="assignment-student-answer-label">Ваш ответ:</p>
+          <p className="assignment-student-answer-label">Ваш ответ (текст):</p>
           <textarea
             className="assignment-student-textarea"
             value={submissionText}
             onChange={(e) => setSubmissionText(e.target.value)}
             placeholder="Введите ваш ответ..."
-            rows={12}
+            rows={6}
             readOnly={!canSubmit}
           />
+
+          <div className="assignment-student-file-upload">
+            <p className="assignment-student-answer-label">Или загрузите файл (PDF, DOCX, до {MAX_FILE_MB} МБ):</p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={ACCEPT_FILES}
+              onChange={handleFileChange}
+              disabled={!canSubmit}
+              className="assignment-student-file-input"
+            />
+            {selectedFile && (
+              <p className="assignment-student-file-name">
+                Выбран файл: <strong>{selectedFile.name}</strong> ({(selectedFile.size / 1024).toFixed(1)} КБ)
+              </p>
+            )}
+          </div>
+
           {error && <div className="auth-error">{error}</div>}
           {isPastDeadline ? (
             <p className="assignment-deadline-expired">

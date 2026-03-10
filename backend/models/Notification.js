@@ -13,15 +13,31 @@ const Notification = sequelize.define('Notification', {
     references: { model: 'users', key: 'id' },
     onDelete: 'CASCADE'
   },
+  assignmentId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: { model: 'assignments', key: 'id' },
+    onDelete: 'CASCADE'
+  },
+  title: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
   message: {
     type: DataTypes.STRING(500),
     allowNull: false
   },
-  read: {
+  type: {
+    type: DataTypes.ENUM('assignment', 'grade', 'deadline', 'system'),
+    allowNull: false,
+    defaultValue: 'system'
+  },
+  isRead: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: false
-  }
+    defaultValue: false,
+    field: 'is_read'
+  },
 }, {
   tableName: 'notifications',
   timestamps: true,

@@ -1,4 +1,5 @@
 const { Course, User, CourseUser, Assignment, AssignmentGrade } = require('../models');
+const notificationService = require('../services/notificationService');
 
 exports.myCourses = async (req, res) => {
   try {
@@ -232,6 +233,7 @@ exports.createAssignment = async (req, res) => {
       description: description ? description.trim() : null,
       dueAt: dueAt ? new Date(dueAt) : null
     });
+    await notificationService.notifyStudentsAboutNewAssignment(assignment);
     res.status(201).json(assignment);
   } catch (err) {
     console.error(err);
@@ -351,6 +353,7 @@ exports.setGrade = async (req, res) => {
     const withUser = await AssignmentGrade.findByPk(record.id, {
       include: [{ model: User, as: 'User', attributes: ['id', 'email', 'name'] }]
     });
+    await notificationService.notifyStudentAboutGrade(assignment, Number(userId), record.grade);
     res.json(withUser);
   } catch (err) {
     console.error(err);

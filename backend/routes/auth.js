@@ -9,8 +9,6 @@ router.post('/login', authController.login);
 router.get('/me', auth, authController.me);
 
 router.post('/request-password-change', auth, authController.requestPasswordChange);
-router.get('/notifications', auth, authController.getNotifications);
-router.patch('/notifications/:id/read', auth, authController.markNotificationRead);
 
 router.get('/pending-password-changes', auth, requireAdmin, authController.getPendingPasswordChanges);
 router.post('/pending-password-changes/:id/accept', auth, requireAdmin, authController.acceptPasswordChange);
