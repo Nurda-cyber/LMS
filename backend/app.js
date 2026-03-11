@@ -8,6 +8,7 @@ const courseRoutes = require('./routes/courses');
 const notificationRoutes = require('./routes/notifications');
 const assignmentRoutes = require('./routes/assignments');
 const submissionRoutes = require('./routes/submissions');
+const dashboardRoutes = require('./routes/dashboard');
 const { User, Course, CourseUser, PasswordChangeRequest, Notification, Assignment, AssignmentGrade, Submission } = require('./models');
 const { startDeadlineScheduler } = require('./services/deadlineScheduler');
 
@@ -22,6 +23,7 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/submissions', submissionRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ ok: true });

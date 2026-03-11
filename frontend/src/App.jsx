@@ -7,6 +7,8 @@ import Register from './pages/Register';
 import DashboardLayout from './components/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
+import AssignmentsPage from './pages/AssignmentsPage';
+import GradesPage from './pages/GradesPage';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -26,6 +28,8 @@ export default function App() {
       <Route path="/register" element={user ? <Navigate to="/dashboard" replace /> : <Register />} />
       <Route path="/dashboard" element={<ProtectedRoute><CourseSidebarProvider><DashboardLayout /></CourseSidebarProvider></ProtectedRoute>}>
         <Route index element={<Dashboard />} />
+        <Route path="assignments" element={<AssignmentsPage />} />
+        <Route path="grades" element={<GradesPage />} />
         <Route path="profile" element={<Profile />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

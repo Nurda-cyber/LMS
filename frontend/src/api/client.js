@@ -276,3 +276,27 @@ export async function getAssignmentSubmissions(assignmentId) {
   if (!res.ok) throw new Error(data.error || 'Ошибка загрузки работ');
   return Array.isArray(data) ? data : [];
 }
+
+/** Дашборд администратора: студенты, учителя, курсы (только admin). */
+export async function getDashboardAdmin() {
+  const res = await fetch(`${API_BASE}/dashboard/admin`, { headers: authHeaders() });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Ошибка загрузки дашборда');
+  return data;
+}
+
+/** Дашборд преподавателя: курсы, кол-во заданий, ожидающие оценки (только teacher). */
+export async function getDashboardTeacher() {
+  const res = await fetch(`${API_BASE}/dashboard/teacher`, { headers: authHeaders() });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Ошибка загрузки дашборда');
+  return data;
+}
+
+/** Дашборд студента: курсы, задания, оценки (только student). */
+export async function getDashboardStudent() {
+  const res = await fetch(`${API_BASE}/dashboard/student`, { headers: authHeaders() });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Ошибка загрузки дашборда');
+  return data;
+}

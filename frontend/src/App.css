@@ -1753,3 +1753,62 @@
 .notification-unread .notification-message {
   font-weight: 500;
 }
+
+.assignments-page-list,
+.grades-page-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+
+.assignments-page-item,
+.grades-page-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.dashboard-content .assignments-page-item,
+.dashboard-content .grades-page-item {
+  border-bottom-color: #e2e8f0;
+}
+
+.assignments-page-course,
+.assignments-page-title,
+.grades-page-assignment {
+  font-weight: 500;
+}
+
+.assignments-page-due,
+.assignments-page-date,
+.grades-page-date {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.dashboard-content .assignments-page-due,
+.dashboard-content .assignments-page-date,
+.dashboard-content .grades-page-date {
+  color: #64748b;
+}
+
+.grades-page-comment {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  width: 100%;
+}
+
+.assignments-page-courses,
+.grades-page-courses {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+}
+
+.assignments-page-courses li,
+.grades-page-courses li {
+  margin-bottom: 0.5rem;
+}
