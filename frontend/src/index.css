@@ -1,13 +1,125 @@
-* {
+/* =============================================================================
+   LMS — design tokens & base layer (global)
+   ============================================================================= */
+
+:root {
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'Segoe UI Mono', monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  /* Brand & semantic colors */
+  --color-primary: #0ea5e9;
+  --color-primary-hover: #0284c7;
+  --color-primary-soft: rgba(14, 165, 233, 0.12);
+  --color-primary-border: rgba(14, 165, 233, 0.35);
+  --color-accent: #6366f1;
+  --color-danger: #dc2626;
+  --color-danger-soft: rgba(239, 68, 68, 0.12);
+  --color-success: #16a34a;
+  --color-success-soft: rgba(34, 197, 94, 0.12);
+
+  /* Neutrals (slate) */
+  --slate-50: #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+
+  /* Surfaces — auth / marketing (dark) */
+  --auth-bg-1: #0b1220;
+  --auth-bg-2: #111827;
+  --auth-bg-3: #0c4a6e;
+  --auth-text: #f1f5f9;
+  --auth-text-muted: #94a3b8;
+  --auth-link: #7dd3fc;
+  --auth-card-bg: rgba(255, 255, 255, 0.06);
+  --auth-card-border: rgba(255, 255, 255, 0.1);
+  --auth-input-bg: rgba(0, 0, 0, 0.22);
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+
+  /* Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 16px 48px rgba(15, 23, 42, 0.12);
+  --shadow-glow-primary: 0 4px 20px rgba(14, 165, 233, 0.35);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.2, 0.64, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 280ms;
+
+  /* Layout */
+  --sidebar-collapsed: 72px;
+  --sidebar-expanded: 280px;
+  --content-max: 56rem;
+  --topbar-height: 3.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0.01ms;
+    --duration-normal: 0.01ms;
+    --duration-slow: 0.01ms;
+  }
+}
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
 }
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   min-height: 100vh;
-  color: #e8e8e8;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  background: linear-gradient(145deg, var(--auth-bg-1) 0%, var(--auth-bg-2) 42%, #0e7490 100%);
+  background-attachment: fixed;
+  color: var(--auth-text);
 }
 
 #root {
@@ -15,19 +127,47 @@ body {
 }
 
 a {
-  color: #7dd3fc;
+  color: var(--auth-link);
   text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
 }
 
 a:hover {
   text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
-input {
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+input,
+textarea,
+select,
+button {
   font: inherit;
 }
 
 button {
-  font: inherit;
   cursor: pointer;
+}
+
+::selection {
+  background: rgba(14, 165, 233, 0.25);
+  color: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
