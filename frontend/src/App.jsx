@@ -9,6 +9,9 @@ import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import AssignmentsPage from './pages/AssignmentsPage';
 import GradesPage from './pages/GradesPage';
+import StructurePage from './features/structure/StructurePage';
+import GradebookPage from './features/grading/GradebookPage';
+import TranscriptPage from './features/grading/TranscriptPage';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -30,6 +33,9 @@ export default function App() {
         <Route index element={<Dashboard />} />
         <Route path="assignments" element={<AssignmentsPage />} />
         <Route path="grades" element={<GradesPage />} />
+        <Route path="structure" element={<StructurePage />} />
+        <Route path="gradebook" element={<GradebookPage />} />
+        <Route path="transcript" element={<TranscriptPage />} />
         <Route path="profile" element={<Profile />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -36,6 +36,15 @@ const ICON_PROFILE = (
   </svg>
 );
 
+const ICON_STRUCTURE = (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <rect x="3" y="3" width="7" height="7" rx="1" />
+    <rect x="14" y="3" width="7" height="7" rx="1" />
+    <rect x="3" y="14" width="7" height="7" rx="1" />
+    <rect x="14" y="14" width="7" height="7" rx="1" />
+  </svg>
+);
+
 const ICON_BELL = (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -208,6 +217,36 @@ export default function DashboardLayout() {
             {ICON_GRADES}
             <span className="sidebar-item-label">Оценки</span>
           </NavLink>
+          {(user?.role === 'teacher' || user?.role === 'admin') && (
+            <NavLink
+              to="/dashboard/gradebook"
+              className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+              title="Ведомость"
+            >
+              {ICON_GRADES}
+              <span className="sidebar-item-label">Ведомость</span>
+            </NavLink>
+          )}
+          {user?.role === 'student' && (
+            <NavLink
+              to="/dashboard/transcript"
+              className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+              title="Транскрипт"
+            >
+              {ICON_GRADES}
+              <span className="sidebar-item-label">Транскрипт</span>
+            </NavLink>
+          )}
+          {user?.role === 'admin' && (
+            <NavLink
+              to="/dashboard/structure"
+              className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+              title="Структура"
+            >
+              {ICON_STRUCTURE}
+              <span className="sidebar-item-label">Структура</span>
+            </NavLink>
+          )}
           <NavLink
             to="/dashboard/profile"
             className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}

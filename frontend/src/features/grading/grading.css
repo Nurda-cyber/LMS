@@ -1,0 +1,145 @@
+/* =============================================================================
+   Grading feature — категории, ведомость, транскрипт.
+   ============================================================================= */
+
+.gradebook-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.gradebook-toolbar select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--dc-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--dc-surface);
+  color: var(--dc-text);
+  font-size: var(--text-sm);
+}
+
+.gradebook-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.gradebook-table th,
+.gradebook-table td {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--dc-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.gradebook-table thead th {
+  background: var(--dc-surface-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--dc-text-muted);
+  font-weight: 700;
+}
+
+.gradebook-table tbody tr:hover {
+  background: var(--dc-surface-muted);
+}
+
+.gradebook-final {
+  font-weight: 700;
+}
+
+.gradebook-final--A { color: #15803d; }
+.gradebook-final--B { color: #0e7490; }
+.gradebook-final--C { color: #a16207; }
+.gradebook-final--D { color: #c2410c; }
+.gradebook-final--F { color: #b91c1c; }
+
+.weights-row {
+  background: var(--color-primary-soft) !important;
+  color: var(--dc-primary-600);
+  font-weight: 700;
+}
+
+.categories-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.categories-editor__row {
+  display: grid;
+  grid-template-columns: 1fr 5rem 5rem auto;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.categories-editor__sum {
+  font-size: var(--text-sm);
+  color: var(--dc-text-secondary);
+}
+
+.categories-editor__sum--bad {
+  color: var(--color-danger);
+}
+
+.transcript-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.transcript-gpa {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--dc-primary);
+  letter-spacing: -0.04em;
+}
+
+.transcript-semester {
+  margin-bottom: var(--space-5);
+}
+
+.transcript-semester__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.transcript-semester__title h4 {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--dc-text);
+}
+
+.transcript-semester__gpa {
+  font-weight: 700;
+  color: var(--dc-primary-600);
+}
+
+.transcript-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.transcript-table th,
+.transcript-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--dc-border);
+  text-align: left;
+}
+
+.transcript-table thead th {
+  background: var(--dc-surface-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--dc-text-muted);
+}

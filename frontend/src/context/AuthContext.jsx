@@ -1,40 +1,56 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import * as api from '../api/client';
+import { setToken, onHttpEvent } from '../shared/api/httpClient';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const userRef = useRef(null);
 
   useEffect(() => {
-    api.getMe()
+    userRef.current = user;
+  }, [user]);
+
+  useEffect(() => {
+    api
+      .getMe()
       .then((data) => setUser(data))
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = onHttpEvent((event) => {
+      if (event.type === 'unauthorized' && userRef.current) {
+        setToken(null);
+        setUser(null);
+      }
+    });
+    return unsubscribe;
+  }, []);
+
   const login = async (email, password) => {
     const data = await api.login(email, password);
-    localStorage.setItem('token', data.token);
+    setToken(data.token);
     setUser(data.user);
     return data;
   };
 
   const register = async (email, password, name) => {
     const data = await api.register(email, password, name);
-    localStorage.setItem('token', data.token);
+    setToken(data.token);
     setUser(data.user);
     return data;
   };
 
   const registerTeacher = async (email, password, name) => {
-    const data = await api.registerTeacher(email, password, name);
-    return data;
+    return api.registerTeacher(email, password, name);
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    setToken(null);
     setUser(null);
   };
 

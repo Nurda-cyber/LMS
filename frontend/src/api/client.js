@@ -1,302 +1,161 @@
-const API_BASE = '/api';
+/**
+ * Прикладные API-функции (тонкая обёртка над shared/api/httpClient).
+ * Файл существует для обратной совместимости с уже написанным кодом —
+ * новые модули должны импортировать `http` из 'shared/api/httpClient'
+ * или специализированные хуки React Query.
+ */
+import { http } from '../shared/api/httpClient';
 
-function getToken() {
-  return localStorage.getItem('token');
-}
+const safe = async (promise, fallback) => {
+  try {
+    return await promise;
+  } catch {
+    return fallback;
+  }
+};
 
 export async function register(email, password, name = '') {
-  const res = await fetch(`${API_BASE}/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password, name })
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка регистрации');
-  return data;
+  return http.post('/auth/register', { email, password, name });
 }
 
 export async function login(email, password) {
-  const res = await fetch(`${API_BASE}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка входа');
-  return data;
+  return http.post('/auth/login', { email, password });
 }
 
 export async function getMe() {
-  const token = getToken();
-  if (!token) return null;
-  const res = await fetch(`${API_BASE}/auth/me`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-  if (!res.ok) return null;
-  return res.json();
+  return safe(http.get('/auth/me'), null);
 }
 
 export async function requestPasswordChange(currentPassword, newPassword) {
-  const res = await fetch(`${API_BASE}/auth/request-password-change`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ currentPassword, newPassword })
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка запроса');
-  return data;
+  return http.post('/auth/request-password-change', { currentPassword, newPassword });
 }
 
 export async function getNotifications() {
-  const res = await fetch(`${API_BASE}/notifications`, { headers: authHeaders() });
-  if (!res.ok) return [];
-  return res.json();
+  return safe(http.get('/notifications'), []);
 }
 
 export async function markNotificationRead(id) {
-  const res = await fetch(`${API_BASE}/notifications/${id}/read`, {
-    method: 'PUT',
-    headers: authHeaders()
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || 'Ошибка');
-  }
-  return res.json();
+  return http.put(`/notifications/${id}/read`);
 }
 
 export async function deleteNotification(id) {
-  const res = await fetch(`${API_BASE}/notifications/${id}`, {
-    method: 'DELETE',
-    headers: authHeaders()
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || 'Ошибка');
-  }
-  return res.json();
+  return http.delete(`/notifications/${id}`);
 }
 
 export async function getPendingPasswordChanges() {
-  const res = await fetch(`${API_BASE}/auth/pending-password-changes`, { headers: authHeaders() });
-  if (!res.ok) return [];
-  return res.json();
+  return safe(http.get('/auth/pending-password-changes'), []);
 }
 
 export async function acceptPasswordChange(requestId) {
-  const res = await fetch(`${API_BASE}/auth/pending-password-changes/${requestId}/accept`, {
-    method: 'POST',
-    headers: authHeaders()
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка одобрения');
-  return data;
-}
-
-function authHeaders() {
-  return { Authorization: `Bearer ${localStorage.getItem('token')}` };
+  return http.post(`/auth/pending-password-changes/${requestId}/accept`);
 }
 
 export async function registerTeacher(email, password, name = '') {
-  const res = await fetch(`${API_BASE}/auth/register-teacher`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ email, password, name })
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка регистрации учителя');
-  return data;
+  return http.post('/auth/register-teacher', { email, password, name });
 }
 
 export async function getTeachers() {
-  const res = await fetch(`${API_BASE}/auth/teachers`, { headers: authHeaders() });
-  if (!res.ok) return [];
-  return res.json();
+  return safe(http.get('/auth/teachers'), []);
 }
 
 export async function getStudents() {
-  const res = await fetch(`${API_BASE}/auth/students`, { headers: authHeaders() });
-  if (!res.ok) return [];
-  return res.json();
+  return safe(http.get('/auth/students'), []);
 }
 
 export async function getCourses() {
-  const res = await fetch(`${API_BASE}/courses`, { headers: authHeaders() });
-  if (!res.ok) return [];
-  return res.json();
+  return safe(http.get('/courses'), []);
 }
 
 export async function getMyCourses() {
-  const res = await fetch(`${API_BASE}/courses/my`, { headers: authHeaders() });
-  if (!res.ok) return [];
-  return res.json();
+  return safe(http.get('/courses/my'), []);
 }
 
 export async function createCourse(name, description = '') {
-  const res = await fetch(`${API_BASE}/courses`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ name, description })
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка создания курса');
-  return data;
+  return http.post('/courses', { name, description });
 }
 
 export async function getCourse(id) {
-  const res = await fetch(`${API_BASE}/courses/${id}`, { headers: authHeaders() });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Курс не найден');
-  return data;
+  return http.get(`/courses/${id}`);
 }
 
 export async function updateCourse(courseId, name, description = '') {
-  const res = await fetch(`${API_BASE}/courses/${courseId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ name: name.trim(), description: description || '' })
+  return http.put(`/courses/${courseId}`, {
+    name: name.trim(),
+    description: description || '',
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка обновления курса');
-  return data;
 }
 
 export async function addCourseMember(courseId, userId, role) {
-  const res = await fetch(`${API_BASE}/courses/${courseId}/members`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ userId, role })
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка добавления');
-  return data;
+  return http.post(`/courses/${courseId}/members`, { userId, role });
 }
 
 export async function removeCourseMember(courseId, userId) {
-  const res = await fetch(`${API_BASE}/courses/${courseId}/members/${userId}`, {
-    method: 'DELETE',
-    headers: authHeaders()
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || 'Ошибка удаления');
-  }
+  return http.delete(`/courses/${courseId}/members/${userId}`);
 }
 
 export async function getCourseAssignments(courseId) {
-  const res = await fetch(`${API_BASE}/courses/${courseId}/assignments`, { headers: authHeaders() });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка загрузки заданий');
+  const data = await http.get(`/courses/${courseId}/assignments`);
   return Array.isArray(data) ? data : [];
 }
 
 export async function createAssignment(courseId, title, description = '', dueAt = null) {
-  const res = await fetch(`${API_BASE}/courses/${courseId}/assignments`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({
-      title: title.trim(),
-      description: description.trim() || undefined,
-      dueAt: dueAt || undefined
-    })
+  return http.post(`/courses/${courseId}/assignments`, {
+    title: title.trim(),
+    description: description.trim() || undefined,
+    dueAt: dueAt || undefined,
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка создания задания');
-  return data;
 }
 
 export async function updateAssignment(courseId, assignmentId, title, description, dueAt) {
-  const res = await fetch(`${API_BASE}/courses/${courseId}/assignments/${assignmentId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({
-      title: title?.trim(),
-      description: description !== undefined ? description : undefined,
-      dueAt: dueAt !== undefined ? dueAt : undefined
-    })
+  return http.put(`/courses/${courseId}/assignments/${assignmentId}`, {
+    title: title?.trim(),
+    description: description !== undefined ? description : undefined,
+    dueAt: dueAt !== undefined ? dueAt : undefined,
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка обновления задания');
-  return data;
 }
 
 export async function submitAssignment(courseId, assignmentId, submissionText) {
-  const res = await fetch(`${API_BASE}/courses/${courseId}/assignments/${assignmentId}/submit`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ submissionText: submissionText != null ? String(submissionText).trim() : '' })
+  return http.post(`/courses/${courseId}/assignments/${assignmentId}/submit`, {
+    submissionText: submissionText != null ? String(submissionText).trim() : '',
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка отправки задания');
-  return data;
 }
 
 /** Отправка задания файлом (PDF, DOCX). Максимум 10 МБ. */
 export async function submitAssignmentFile(assignmentId, file) {
   const formData = new FormData();
   formData.append('file', file);
-  const res = await fetch(`${API_BASE}/assignments/${assignmentId}/submit`, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: formData
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка отправки файла');
-  return data;
+  return http.post(`/assignments/${assignmentId}/submit`, formData);
 }
 
 export async function deleteAssignment(courseId, assignmentId) {
-  const res = await fetch(`${API_BASE}/courses/${courseId}/assignments/${assignmentId}`, {
-    method: 'DELETE',
-    headers: authHeaders()
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || 'Ошибка удаления');
-  }
+  return http.delete(`/courses/${courseId}/assignments/${assignmentId}`);
 }
 
 export async function setAssignmentGrade(courseId, assignmentId, userId, grade, comment = '') {
-  const res = await fetch(`${API_BASE}/courses/${courseId}/assignments/${assignmentId}/grades`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify({ userId, grade: String(grade).trim(), comment: comment.trim() || undefined })
+  return http.post(`/courses/${courseId}/assignments/${assignmentId}/grades`, {
+    userId,
+    grade: String(grade).trim(),
+    comment: comment.trim() || undefined,
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка сохранения оценки');
-  return data;
 }
 
 /** Список отправленных работ по заданию (для учителя/админа). */
 export async function getAssignmentSubmissions(assignmentId) {
-  const res = await fetch(`${API_BASE}/submissions/assignments/${assignmentId}/submissions`, {
-    headers: authHeaders()
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка загрузки работ');
+  const data = await http.get(`/submissions/assignments/${assignmentId}/submissions`);
   return Array.isArray(data) ? data : [];
 }
 
 /** Дашборд администратора: студенты, учителя, курсы (только admin). */
 export async function getDashboardAdmin() {
-  const res = await fetch(`${API_BASE}/dashboard/admin`, { headers: authHeaders() });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка загрузки дашборда');
-  return data;
+  return http.get('/dashboard/admin');
 }
 
-/** Дашборд преподавателя: курсы, кол-во заданий, ожидающие оценки (только teacher). */
+/** Дашборд преподавателя: курсы, кол-во заданий, ожидающие оценки. */
 export async function getDashboardTeacher() {
-  const res = await fetch(`${API_BASE}/dashboard/teacher`, { headers: authHeaders() });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка загрузки дашборда');
-  return data;
+  return http.get('/dashboard/teacher');
 }
 
-/** Дашборд студента: курсы, задания, оценки (только student). */
+/** Дашборд студента: курсы, задания, оценки. */
 export async function getDashboardStudent() {
-  const res = await fetch(`${API_BASE}/dashboard/student`, { headers: authHeaders() });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Ошибка загрузки дашборда');
-  return data;
+  return http.get('/dashboard/student');
 }

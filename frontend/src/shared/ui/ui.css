@@ -1,0 +1,332 @@
+/* =============================================================================
+   Shared UI kit — atomic components (Button extra variants, Card, Modal,
+   Skeleton, EmptyState, Badge, Spinner).
+   Используются вместе с базовыми классами из App.css (.btn, .welcome-card и др.).
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   Button — расширения уже существующего .btn
+   ----------------------------------------------------------------------------- */
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(1.05);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--dc-text-secondary, var(--slate-600));
+  border-color: transparent;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--dc-surface-muted, var(--slate-100));
+  color: var(--dc-text, var(--slate-900));
+}
+
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: var(--text-base);
+  border-radius: var(--radius-lg);
+}
+
+.btn--full {
+  width: 100%;
+}
+
+.btn--icon-only {
+  padding: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.btn__spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ui-spin 0.7s linear infinite;
+}
+
+/* -----------------------------------------------------------------------------
+   Card — общий контейнер
+   ----------------------------------------------------------------------------- */
+.ui-card {
+  background: var(--dc-surface, #fff);
+  border: 1px solid var(--dc-border, var(--slate-200));
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xs);
+  padding: var(--space-5) var(--space-6);
+  color: var(--dc-text, var(--slate-900));
+}
+
+.ui-card--flush {
+  padding: 0;
+}
+
+.ui-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.ui-card__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--dc-text, var(--slate-900));
+}
+
+.ui-card__subtitle {
+  margin: 0.15rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--dc-text-muted, var(--slate-500));
+  line-height: var(--leading-relaxed);
+}
+
+.ui-card__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.ui-card__body > *:first-child {
+  margin-top: 0;
+}
+
+.ui-card__body > *:last-child {
+  margin-bottom: 0;
+}
+
+/* -----------------------------------------------------------------------------
+   Modal
+   ----------------------------------------------------------------------------- */
+.ui-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  z-index: 1000;
+  animation: ui-fade-in var(--duration-normal) var(--ease-out);
+}
+
+.ui-modal {
+  background: var(--dc-surface, #fff);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 32rem;
+  max-height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: ui-modal-in var(--duration-slow) var(--ease-spring);
+}
+
+.ui-modal--sm { max-width: 24rem; }
+.ui-modal--lg { max-width: 48rem; }
+.ui-modal--xl { max-width: 64rem; }
+
+.ui-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--dc-border, var(--slate-200));
+}
+
+.ui-modal__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--dc-text, var(--slate-900));
+}
+
+.ui-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: transparent;
+  color: var(--dc-text-muted, var(--slate-500));
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.ui-modal__close:hover {
+  background: var(--dc-surface-muted, var(--slate-100));
+  color: var(--dc-text, var(--slate-900));
+}
+
+.ui-modal__body {
+  padding: var(--space-5) var(--space-6);
+  overflow-y: auto;
+  color: var(--dc-text-secondary, var(--slate-700));
+}
+
+.ui-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--dc-border, var(--slate-200));
+  background: var(--dc-surface-muted, var(--slate-50));
+}
+
+/* -----------------------------------------------------------------------------
+   Skeleton
+   ----------------------------------------------------------------------------- */
+.ui-skeleton {
+  display: block;
+  background: linear-gradient(
+    90deg,
+    var(--slate-200) 0%,
+    var(--slate-100) 50%,
+    var(--slate-200) 100%
+  );
+  background-size: 200% 100%;
+  animation: ui-skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+.ui-skeleton--text { height: 0.9em; }
+.ui-skeleton--title { height: 1.4em; }
+.ui-skeleton--circle { border-radius: var(--radius-full); }
+
+/* -----------------------------------------------------------------------------
+   EmptyState
+   ----------------------------------------------------------------------------- */
+.ui-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+  color: var(--dc-text-muted, var(--slate-500));
+}
+
+.ui-empty__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: var(--radius-full);
+  background: var(--dc-surface-muted, var(--slate-100));
+  color: var(--dc-text-secondary, var(--slate-500));
+  margin-bottom: var(--space-4);
+}
+
+.ui-empty__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--dc-text, var(--slate-900));
+}
+
+.ui-empty__desc {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  max-width: 24rem;
+}
+
+/* -----------------------------------------------------------------------------
+   Badge
+   ----------------------------------------------------------------------------- */
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: var(--radius-full);
+  background: var(--slate-100);
+  color: var(--slate-700);
+}
+
+.ui-badge--primary {
+  background: rgba(14, 165, 233, 0.12);
+  color: var(--color-primary-hover);
+}
+
+.ui-badge--success {
+  background: rgba(22, 163, 74, 0.12);
+  color: var(--color-success);
+}
+
+.ui-badge--warning {
+  background: rgba(234, 179, 8, 0.16);
+  color: #a16207;
+}
+
+.ui-badge--danger {
+  background: rgba(239, 68, 68, 0.14);
+  color: #b91c1c;
+}
+
+.ui-badge--neutral {
+  background: var(--slate-100);
+  color: var(--slate-700);
+}
+
+/* -----------------------------------------------------------------------------
+   Spinner
+   ----------------------------------------------------------------------------- */
+.ui-spinner {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ui-spin 0.7s linear infinite;
+  color: var(--color-primary);
+}
+
+.ui-spinner--sm { width: 0.9rem; height: 0.9rem; }
+.ui-spinner--lg { width: 1.75rem; height: 1.75rem; }
+
+/* -----------------------------------------------------------------------------
+   Animations
+   ----------------------------------------------------------------------------- */
+@keyframes ui-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ui-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes ui-modal-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ui-skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
